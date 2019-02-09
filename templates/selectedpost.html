@@ -2,4 +2,9 @@
 {% block content %}
 <h1>{{ post.title }}</h1>
 <p>{{ post.body }}</p>
+{% for user in users %}
+    {% if post.owner_id == user.id  %}
+        <p style="font-size: small">Written by <a href="/blog?user_id={{post.owner_id}}">{{ user.username }}</a></p>
+    {% endif %}
+ {% endfor %}
 {% endblock %}
