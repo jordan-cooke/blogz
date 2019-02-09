@@ -1,2 +1,2 @@
-# build-a-blog
-LaunchCode LC101 build-a-blog project.
+# blogz
+LaunchCode LC101 blogz project.
