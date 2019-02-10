@@ -1,5 +1,7 @@
 from flask import Flask, request, redirect, render_template, session
 from flask_sqlalchemy import SQLAlchemy
+from hashutils import make_pw_hash, check_pw_hash
+
 
 app = Flask(__name__)
 app.config['DEBUG'] = True
@@ -22,12 +24,12 @@ class Blog(db.Model):
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(120), unique=True)
-    password = db.Column(db.String(120))
+    pw_hash = db.Column(db.String(120))
     post = db.relationship('Blog', backref='owner')
     
     def __init__(self, username, password):
         self.username = username
-        self.password = password
+        self.pw_hash = make_pw_hash(password)
 
 @app.before_request
 def require_login():
@@ -88,12 +90,12 @@ def login():
         password = request.form['password']
         password = password.strip(" ")
         user = User.query.filter_by(username=username).first()
-        if user and user.password == password:
+        if user and check_pw_hash(password, user.pw_hash):
             session['username'] = username
             return redirect("/newpost") 
         if not user:
             username_error = "Username doesn't exist."
-        if user and user.password != password:
+        if user and not check_pw_hash(password, user.pw_hash):
             password_error = "Incorrect password."
     return render_template("login.html", username_error=username_error, password_error=password_error)
 
